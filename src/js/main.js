@@ -63,8 +63,8 @@ function renderDate(data){return data?moment(data).format('YYYY/MM/DD'):data}
 
 var columns = [
     {
-        "data": "coin",
-        "title": "coin"
+        "data": "title",
+        "title": "title"
     },
     {
         "data": "commits_per_week",
@@ -320,6 +320,8 @@ function refresh(){
         $('#markdown').val(makeMarkDownTable(data))
         $("#go").prop('disabled', false);
         $("#go").text("Go")
+        copy(makeMarkDownTable(data))
+        console.log('copied markdown version to clipboard')
     })
 }
 
