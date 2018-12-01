@@ -194,17 +194,35 @@ function parseDates(data) {
 // dirty hack -  make a markdown table for reddit
 function makeMarkDownTable(data) {
     var table_cols = [
-        "coin",
+        "title",
         "commits_per_week",
         "watchers",
         "open_issues",
         "created_at",
         "updated_at",
-        "contributors"
+        "contributors",
+        "forks",
+        "url"
     ]
     var d2 = data.map(row => _.pick(row, table_cols))
     d2 = d2.sort((a, b) => b.commits_per_week - a.commits_per_week)
     var h = columns.filter(col => table_cols.includes(col.data)).map(c => c.title)
+
+    var remove_time = function (t) { return t.replace(/T\d\d\:\d\d\:\d\dZ/, '') }
+    
+    d2.map(o => {
+        // format dates without times
+        var date_keys = ['created_at', 'updated_at']
+        for (const key of date_keys) {
+            o[key]=remove_time(o[key])
+        }
+        // make name into lnk
+        var title = o['title']
+        var url = o['url']
+        o['title'] = '['+title+']('+url+')'
+      })
+
+    // TODO format date without milliseconds
 
     var table = ''
     table += '|' + h.join('|') + '|\n'
@@ -230,7 +248,7 @@ function fillAll(data, columns){
 
 function refresh(){
 
-    var coins = $('#repos').val()
+    var repo_arr = $('#repos').val()
         .trim()
         .split('\n')
         .filter(row=>!row.startsWith('#'))
@@ -242,13 +260,13 @@ function refresh(){
 
     // Collect data
     let promises
-    let countdown = Object.keys(coins).length
+    let countdown = Object.keys(repo_arr).length
     let total = countdown*1
     $("#go").prop('disabled', true);
     $("#go").text(''+countdown)
     if (!localStorage['gh-data'])
-        promises = Promise.all(Object.keys(coins).map(coin => {
-            var url = coins[coin]
+        promises = Promise.all(Object.keys(repo_arr).map(title => {
+            var url = repo_arr[title]
             // TODO(mjc) if its a user, list repos
             // TODO(mjc) if url is a list, do promiseGitHubRepoStatsMulti
             if (url.includes('github.com')) {
@@ -256,32 +274,32 @@ function refresh(){
                     // handle a list of repos
                     return promiseGitHubRepoStatsMulti(url.split(' '))
                     .then(data => {
-                        data.coin = coin
+                        data.title = title
                         data.url = url
                         return data
-                    }).catch(err => {console.error(err, url, coin)})
+                    }).catch(err => {console.error(err, url, title)})
                 }
                 else if (url.includes('https://github.com/orgs') || url.includes('https://github.com/users')){
                     // handle github org or user
                     return promiseGitHubOrgStats(url).then(data => {
-                        data.coin = coin
+                        data.title = title
                         data.url = url
                         return data
-                    }).catch(err => {console.error(err, url, coin)})
+                    }).catch(err => {console.error(err, url, title)})
 
                 } else {
                     return promiseGitHubRepoStats(url).then(data => {
-                        data.coin = coin
+                        data.title = title
                         data.url = url
                         return data
-                    }).catch(err => {console.error(err, url, coin)})
+                    }).catch(err => {console.error(err, url, title)})
                 }
             } else {
                 return promiseBitbucketRepoStats(url).then(data => {
-                    data.coin = coin
+                    data.title = title
                     data.url = url
                     return data
-                }).catch(err => {console.error(err, url, coin)})
+                }).catch(err => {console.error(err, url, title)})
             }
 
         }).map(promise=>promise

@@ -13,6 +13,7 @@ $(document).ready(function() {
         localStorage['gh_token'] = $('#token').val()
     })
     gh = new GitHub(localStorage['gh_token'] || '')
+    console.log('stored new token')
 })
 
 
