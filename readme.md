@@ -1,4 +1,13 @@
-Static site for comparing github repos/users.
+Static site for comparing github repos/users. This is beta so it may not work for you, pull requests welcome.
+
+# Usage:
+
+- Go to github.io site: https://wassname.github.io/compare_github_repos/src/
+- Click "Github api token" to follow the link and generate a github api token (must be logged in, it will be cached locally only)
+- enter csv inputs as in the example
+- open browser javascript console so you can check for errors (it's alpha)
+- click go, you should see the go button replaced with a countdown
+- aftr the countdown you should see a table and a box with a raw markdown table
 
 
 # Example output:
